@@ -91,6 +91,11 @@ def compute_N(M, Mbar, U, W, dx, m, k, Tbar, tau):
 
     # Added
     NiNi = compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar)
+    #NiNiMc = compute_NiNi_mc(alpha, cbar, gammabar, Lambdabar, tau, Tbar, n_samples=1000000)
+    #print(f"diff: {(NiNi - NiNiMc).mean():.4f} ± {(NiNi - NiNiMc).std():.4f}")
+    #alpha_at_particle = W.T @ alpha      # Np x 3
+    #cbar_at_particle = np.einsum('cp,cij->pij', W, cbar)  # Np x 3 x 3
+    #gammabar_at_particle = W.T @ gammabar  # Np x 3
 
     W_col_sum = W.sum(axis=0)  # Np
 
@@ -105,7 +110,28 @@ def compute_N(M, Mbar, U, W, dx, m, k, Tbar, tau):
         N[:, i] += gammabar_at_particle[:, i] * (Mbar_sq - 3*k*Tbar/m)
         N[:, i] += Lambdabar * Mbar[:, i] * Mbar_sq
     return N, NiNi
-
+'''
+def compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar):
+    """
+    alpha:    (Nc, 3)
+    cbar:     (Nc, 3, 3)
+    gammabar: (Nc, 3)
+    Returns:  (Nc, 3)
+    """
+    NiNi = np.zeros_like(alpha)
+    
+    for i in range(3):
+        NiNi[:, i] += alpha[:, i]**2                           # A²
+        NiNi[:, i] += Tbar / tau**2                            # B²
+        NiNi[:, i] += Tbar * np.sum(cbar[:, i, :]**2, axis=1) # C²
+        NiNi[:, i] += 6 * Tbar**2 * gammabar[:, i]**2         # D²
+        NiNi[:, i] += 15 * Lambdabar**2 * Tbar**3             # E²
+        NiNi[:, i] += 2 * Tbar / tau * cbar[:, i, i]          # 2BC
+        NiNi[:, i] += 10 * Lambdabar * Tbar**2 / tau          # 2BE
+        NiNi[:, i] += 10 * Lambdabar * Tbar**2 * cbar[:, i, i] # 2CE
+    
+    return NiNi  # Nc x 3
+'''
 def compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar):
     """
     alpha:    (Nc, 3)

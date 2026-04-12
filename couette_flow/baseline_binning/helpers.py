@@ -88,7 +88,9 @@ def compute_cbar(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau):
     dUdx[Nc-1] = (U[Nc-1, 0] - U[Nc-2, 0]) / (dx)
     
         
-    Lambdabar = - ((m / (2 * k * Tbar)) ** 2) / tau
+    #Lambdabar = - ((m / (2 * k * Tbar)) ** 2) / tau
+    Lambdabar = 0
+
     cbar = np.zeros((Nc, 3, 3))
     for c in range(Nc):
         for i in range(3):
@@ -141,7 +143,8 @@ def compute_N(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau):
     alpha = compute_alpha(M, Mbar, Nc, X, L, dx)
     cbar = compute_cbar(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau)
     gammabar = compute_gammabar(alpha, M, Mbar, Nc, X, L, dx, m, k, Tbar, tau)
-    Lambdabar = - ((m / (2 * k * Tbar)) ** 2) / tau
+    Lambdabar = 0
+    #Lambdabar = - ((m / (2 * k * Tbar)) ** 2) / tau
 
     NiNi = compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar)
     #NiNiMc = compute_NiNi_mc(alpha, cbar, gammabar, Lambdabar, tau, Tbar, n_samples=1000000)

@@ -1,0 +1,114 @@
+# --- OS files ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.code-workspace
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Environment files ---
+.env
+.env.*
+*.local
+
+# --- Dependency directories ---
+node_modules/
+vendor/
+
+# --- Build outputs ---
+dist/
+build/
+out/
+target/
+
+# --- Cache ---
+.cache/
+*.cache
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+.env/
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+
+# --- Jupyter Notebook ---
+.ipynb_checkpoints/
+
+# --- Node / JS ---
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.next/
+.nuxt/
+.svelte-kit/
+coverage/
+
+# --- Java ---
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+build/
+
+# --- C / C++ ---
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.so
+*.dll
+
+# --- Rust ---
+target/
+Cargo.lock
+
+# --- Go ---
+bin/
+pkg/
+
+# --- Swift / Xcode ---
+.build/
+DerivedData/
+
+# --- Terraform ---
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# --- Misc ---
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# --- Mac specific ---
+.AppleDouble
+.LSOverride
+
+# --- Linux ---
+*~
+
+# --- Windows ---
+*.stackdump

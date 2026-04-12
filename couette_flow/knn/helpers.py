@@ -44,8 +44,10 @@ def compute_cbar(M, Mbar, U, W, dx, m, k, Tbar, tau):
     dUdx[1:-1] = (U[2:, 0] - U[:-2, 0]) / (2 * dx)
     dUdx[0] = (U[1, 0] - U[0, 0]) / dx
     dUdx[-1] = (U[-1, 0] - U[-2, 0]) / dx
+    
+    Lambdabar = 0
 
-    Lambdabar = -((m / (2 * k * Tbar)) ** 2) / tau
+    #Lambdabar = -((m / (2 * k * Tbar)) ** 2) / tau
     cbar = np.zeros((Nc, 3, 3))
     for i in range(3):
         for j in range(3):
@@ -85,7 +87,8 @@ def compute_N(M, Mbar, U, W, dx, m, k, Tbar, tau):
     alpha = compute_alpha(M, Mbar, W, dx)
     cbar = compute_cbar(M, Mbar, U, W, dx, m, k, Tbar, tau)
     gammabar = compute_gammabar(alpha, M, Mbar, W, dx, m, k, Tbar)
-    Lambdabar = -((m / (2 * k * Tbar)) ** 2) / tau
+    Lambdabar = 0
+    #Lambdabar = -((m / (2 * k * Tbar)) ** 2) / tau
 
     Mbar_sq = np.sum(Mbar**2, axis=1)  # Np
 
@@ -98,6 +101,8 @@ def compute_N(M, Mbar, U, W, dx, m, k, Tbar, tau):
     #gammabar_at_particle = W.T @ gammabar  # Np x 3
 
     W_col_sum = W.sum(axis=0)  # Np
+    W_col_sum = np.where(W_col_sum == 0, 1.0, W_col_sum)  # add this
+
 
     alpha_at_particle = (W.T @ alpha) / W_col_sum[:, None]      # Np x 3
     cbar_at_particle = np.einsum('cp,cij->pij', W, cbar) / W_col_sum[:, None, None]  # Np x 3 x 3

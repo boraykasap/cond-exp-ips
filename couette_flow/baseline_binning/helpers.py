@@ -2,16 +2,6 @@ import numpy as np
 
 def compute_alpha(M, Mbar, Nc, X, L, dx):
 
-    """
-    Compute alpha_i for each cell.
-
-    M: Np x 3 array (particle velocities)
-    Mbar: Np x 3 array (particle velocities in the parallel process)
-    X: Np x 1 array (particle positions)
-    Nc: number of cells
-    L: domain length
-    dx: cell width
-    """
     # M is Np x 3b
     alpha_before_derivative = np.zeros((Nc, 3))
 
@@ -39,22 +29,6 @@ def compute_alpha(M, Mbar, Nc, X, L, dx):
     return alpha
 
 def compute_cbar(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau):
-    """
-    Compute cbar_ij for each cell.
-
-    M: Np x 3 array (particle velocities)
-    Mbar: Np x 3 array (particle velocities in the parallel process)
-    U: Nc x 3
-    X: Np x 1 array (particle positions)
-    Nc: number of cells
-    L: domain length
-    dx: cell width
-    m: 
-    k: Boltzmann constant
-    tau
-    
-    """
-    
     term_before_derivative = np.zeros((Nc, 3, 3))
 
     # Indicates which particle belongs to which cell
@@ -67,8 +41,6 @@ def compute_cbar(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau):
         if mask.any():
             for i in range(3):
                 for j in range(3):
-                    # l is skipped we skipped those l not equal to 0 
-                    # I made it l so that it is not confused with the Boltzmann constant
                     term_before_derivative[c, i, j] = np.mean((M[mask, 0] - Mbar[mask, 0]) * Mbar[mask, i] * Mbar[mask, j])
 
     derivative = np.zeros_like(term_before_derivative)
@@ -99,7 +71,7 @@ def compute_cbar(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau):
                 + (i==j) * (  (1/2 * dUdx[c]) - (1 / tau) - 15 * m * Lambdabar / (k * Tbar))
     return cbar
 
-def compute_gammabar(alpha, M, Mbar, Nc, X, L, dx, m, k, Tbar, tau):
+def compute_gammabar(alpha, M, Mbar, Nc, X, L, dx, m, k, Tbar):
     term_before_derivative = np.zeros((Nc, 3))
 
     cell_index = np.floor((X + L/2) / dx).astype(int)
@@ -142,14 +114,11 @@ def compute_N(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau):
 
     alpha = compute_alpha(M, Mbar, Nc, X, L, dx)
     cbar = compute_cbar(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau)
-    gammabar = compute_gammabar(alpha, M, Mbar, Nc, X, L, dx, m, k, Tbar, tau)
+    gammabar = compute_gammabar(alpha, M, Mbar, Nc, X, L, dx, m, k, Tbar)
     Lambdabar = 0
     #Lambdabar = - ((m / (2 * k * Tbar)) ** 2) / tau
 
     NiNi = compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar)
-    #NiNiMc = compute_NiNi_mc(alpha, cbar, gammabar, Lambdabar, tau, Tbar, n_samples=1000000)
-    #print(f"MC diff to analytical: {(NiNi - NiNiMc).mean():.4f} ± {(NiNi - NiNiMc).std():.4f}")
-
     
     for c in range(Nc):
         mask = (cell_index == c)
@@ -166,12 +135,6 @@ def compute_N(M, Mbar, U, Nc, X, L, dx, m, k, Tbar, tau):
     return N, NiNi
 
 def compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar):
-    """
-    alpha:    (Nc, 3)
-    cbar:     (Nc, 3, 3)
-    gammabar: (Nc, 3)
-    Returns:  (Nc, 3)
-    """
     NiNi = np.zeros_like(alpha)
     
     for i in range(3):
@@ -187,13 +150,6 @@ def compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar):
     return NiNi
 
 def compute_NiNi_mc(alpha, cbar, gammabar, Lambdabar, tau, Tbar, n_samples=10000):
-    """
-    Compute <NiNi> analytically by Monte Carlo integration over F̄.
-    alpha:    (Nc, 3)
-    cbar:     (Nc, 3, 3)
-    gammabar: (Nc, 3)
-    Returns:  (Nc, 3)
-    """
     Nc = alpha.shape[0]
     NiNi = np.zeros((Nc, 3))
     

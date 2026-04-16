@@ -1,9 +1,7 @@
 import numpy as np
 
 def compute_alpha(M, Mbar, W, dx):
-    """
-    W: Nc x Np weight matrix from NW
-    """
+
     diff = M[:, 0] - Mbar[:, 0]  # Np
     
     alpha_before_derivative = np.zeros((W.shape[0], 3))
@@ -21,9 +19,7 @@ def compute_alpha(M, Mbar, W, dx):
 
 
 def compute_cbar(M, Mbar, U, W, dx, m, k, Tbar, tau):
-    """
-    W: Nc x Np weight matrix from NW
-    """
+
     Nc = W.shape[0]
     diff = M[:, 0] - Mbar[:, 0]  # Np
 
@@ -46,8 +42,8 @@ def compute_cbar(M, Mbar, U, W, dx, m, k, Tbar, tau):
     dUdx[-1] = (U[-1, 0] - U[-2, 0]) / dx
     
     Lambdabar = 0
-
     #Lambdabar = -((m / (2 * k * Tbar)) ** 2) / tau
+
     cbar = np.zeros((Nc, 3, 3))
     for i in range(3):
         for j in range(3):
@@ -87,18 +83,13 @@ def compute_N(M, Mbar, U, W, dx, m, k, Tbar, tau):
     alpha = compute_alpha(M, Mbar, W, dx)
     cbar = compute_cbar(M, Mbar, U, W, dx, m, k, Tbar, tau)
     gammabar = compute_gammabar(alpha, M, Mbar, W, dx, m, k, Tbar)
+
     Lambdabar = 0
     #Lambdabar = -((m / (2 * k * Tbar)) ** 2) / tau
 
     Mbar_sq = np.sum(Mbar**2, axis=1)  # Np
 
-    # Added
     NiNi = compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar)
-    #NiNiMc = compute_NiNi_mc(alpha, cbar, gammabar, Lambdabar, tau, Tbar, n_samples=1000000)
-    #print(f"diff: {(NiNi - NiNiMc).mean():.4f} ± {(NiNi - NiNiMc).std():.4f}")
-    #alpha_at_particle = W.T @ alpha      # Np x 3
-    #cbar_at_particle = np.einsum('cp,cij->pij', W, cbar)  # Np x 3 x 3
-    #gammabar_at_particle = W.T @ gammabar  # Np x 3
 
     W_col_sum = W.sum(axis=0)  # Np
     W_col_sum = np.where(W_col_sum == 0, 1.0, W_col_sum)  # add this
@@ -115,35 +106,9 @@ def compute_N(M, Mbar, U, W, dx, m, k, Tbar, tau):
         N[:, i] += gammabar_at_particle[:, i] * (Mbar_sq - 3*k*Tbar/m)
         N[:, i] += Lambdabar * Mbar[:, i] * Mbar_sq
     return N, NiNi
-'''
+
 def compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar):
-    """
-    alpha:    (Nc, 3)
-    cbar:     (Nc, 3, 3)
-    gammabar: (Nc, 3)
-    Returns:  (Nc, 3)
-    """
-    NiNi = np.zeros_like(alpha)
-    
-    for i in range(3):
-        NiNi[:, i] += alpha[:, i]**2                           # A²
-        NiNi[:, i] += Tbar / tau**2                            # B²
-        NiNi[:, i] += Tbar * np.sum(cbar[:, i, :]**2, axis=1) # C²
-        NiNi[:, i] += 6 * Tbar**2 * gammabar[:, i]**2         # D²
-        NiNi[:, i] += 15 * Lambdabar**2 * Tbar**3             # E²
-        NiNi[:, i] += 2 * Tbar / tau * cbar[:, i, i]          # 2BC
-        NiNi[:, i] += 10 * Lambdabar * Tbar**2 / tau          # 2BE
-        NiNi[:, i] += 10 * Lambdabar * Tbar**2 * cbar[:, i, i] # 2CE
-    
-    return NiNi  # Nc x 3
-'''
-def compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar):
-    """
-    alpha:    (Nc, 3)
-    cbar:     (Nc, 3, 3)
-    gammabar: (Nc, 3)
-    Returns:  (Nc, 3)
-    """
+
     NiNi = np.zeros_like(alpha)
     
     for i in range(3):
@@ -160,17 +125,10 @@ def compute_NiNi_analytical(alpha, cbar, gammabar, Lambdabar, tau, Tbar):
 
 
 def compute_NiNi_mc(alpha, cbar, gammabar, Lambdabar, tau, Tbar, n_samples=10000):
-    """
-    Compute <NiNi> analytically by Monte Carlo integration over F̄.
-    alpha:    (Nc, 3)
-    cbar:     (Nc, 3, 3)
-    gammabar: (Nc, 3)
-    Returns:  (Nc, 3)
-    """
+
     Nc = alpha.shape[0]
     NiNi = np.zeros((Nc, 3))
     
-
     Y = np.random.normal(0, np.sqrt(Tbar), size=(n_samples, 3))
     Y_sq = np.sum(Y**2, axis=1)  
     
